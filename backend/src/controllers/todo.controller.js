@@ -1,11 +1,17 @@
 import Todo from "../models/todo.model.js";
+import User from '../models/user.model.js';
+
 
 const createTodo = async (req, res) => {
     try {
+        const user = await User.findById(req.user.id);
         const { title } = req.body;
         const todo = await Todo.create({
             title
         });
+        await user.updateOne({
+            $push: { todos:  todo._id  }
+        }, { new: true })
         return res.status(201).json({ message: "Todo created successfully", todo })
     } catch (error) {
         console.error(error);
@@ -15,8 +21,12 @@ const createTodo = async (req, res) => {
 
 const getAllTodo = async (req, res) => {
     try {
-        const todos = await Todo.find()
-        res.json(todos)
+        const user = await User.findById(req.user.id).populate('todos')
+
+        const allTodos = user.todos;
+
+        return res.status(200).json(allTodos);
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Internal Server Error" });

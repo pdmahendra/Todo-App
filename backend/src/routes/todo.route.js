@@ -8,8 +8,11 @@ import {
     deleteTodo
 } from "../controllers/todo.controller.js";
 
-router.route('/createTodo').post(createTodo)
-router.route('/getAllTodo').get(getAllTodo)
+
+import { verifyJwt } from "../middlewares/auth.middleware.js";
+
+router.route('/createTodo').post(verifyJwt,createTodo)
+router.route('/getAllTodo').get(verifyJwt,getAllTodo)
 router.route('/updateTodo/:id').put(updateTodo)
 router.route('/deleteTodo/:id').delete(deleteTodo)
 

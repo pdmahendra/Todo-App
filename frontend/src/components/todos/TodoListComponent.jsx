@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { toggleTodoCompleted } from '../handleApi.jsx'
+import { toggleTodoCompleted } from '../../handleApi.jsx'
 
 const TodoListComponent = memo(({ title, completed, id, onDelete, edit, setTodos }) => {
 

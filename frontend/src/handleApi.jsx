@@ -1,18 +1,27 @@
 import axios from 'axios';
 
+const getTokenConfig = () => {
+    const token = localStorage.getItem('token');
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+};
+// console.log(config);
 
 const getAllTodos = (setTodos) => {
-    axios.get('/api/getAllTodo')
+    axios.get('/api/getAllTodo', getTokenConfig())
         .then(response => {
             setTodos(response.data)
         })
         .catch(error => {
-            console.log(error);
+            console.error('Error fetching todos:', error.response ? error.response.data : error.message);
         });
 };
 
 const createTodo = (title, setTodos, setTitle) => {
-    axios.post('/api/createTodo', { title: title })
+    axios.post('/api/createTodo', { title: title }, getTokenConfig())
         .then(response => {
             setTodos(prevTodos => [...prevTodos, response.data.todo]);
             setTitle("");
@@ -23,7 +32,7 @@ const createTodo = (title, setTodos, setTitle) => {
 };
 
 const updateTodo = (editingId, title, setTodos, setTitle, setEditingId) => {
-    axios.put(`/api/updateTodo/${editingId}`, { title: title })
+    axios.put(`/api/updateTodo/${editingId}`, { title: title }, getTokenConfig())
         .then(response => {
             setTodos(prevTodos =>
                 prevTodos.map(todo =>
@@ -39,7 +48,7 @@ const updateTodo = (editingId, title, setTodos, setTitle, setEditingId) => {
 };
 
 const toggleTodoCompleted = (id, completed, setTodos) => {
-    axios.put(`/api/updateTodo/${id}`, { completed: !completed })
+    axios.put(`/api/updateTodo/${id}`, { completed: !completed }, getTokenConfig())
         .then(response => {
             setTodos(prevTodos =>
                 prevTodos.map(todo =>
@@ -53,7 +62,7 @@ const toggleTodoCompleted = (id, completed, setTodos) => {
 };
 
 const deleteTodo = (id, setTodos) => {
-    axios.delete(`/api/deleteTodo/${id}`)
+    axios.delete(`/api/deleteTodo/${id}`, getTokenConfig())
         .then(() => {
             setTodos(prevTodos => prevTodos.filter((todo) => todo._id !== id))
         })
@@ -62,4 +71,16 @@ const deleteTodo = (id, setTodos) => {
         });
 };
 
-export { getAllTodos, createTodo, updateTodo, toggleTodoCompleted, deleteTodo }
+const logout = () => {
+    const config = getTokenConfig();
+    axios.post('/api/logout', {}, config)// Optional server-side call
+        .then(() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userName'); // Remove the user's name
+        })
+        .catch(error => {
+            console.error('Error logging out:', error);
+        });
+}
+
+export { getAllTodos, createTodo, updateTodo, toggleTodoCompleted, deleteTodo, logout }
